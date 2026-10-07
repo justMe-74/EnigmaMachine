@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macchina Cifrante Grezza</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0d0d0d;
+            color: #d4cebe;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- TELO ROSSO COPRI-MACCHINA --- */
+        #cover-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #4a0c0c;
+            background-image: 
+                radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%),
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.05) 10px, rgba(0,0,0,0.05) 20px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 100px #000;
+        }
+
+        .cover-box {
+            background: #1a1816;
+            border: 3px solid #3a322b;
+            padding: 4vw;
+            display: flex;
+            flex-direction: column;
+            gap: 2vw;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .cover-btn {
+            background: #2a2521;
+            color: #b5a48b;
+            border: 2px solid #55483c;
+            padding: 1.5vw 3vw;
+            font-family: inherit;
+            font-size: 1.8vw;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .cover-btn:hover {
+            background: #3a332d;
+            color: #e6dac3;
+            border-color: #8c7661;
+        }
+
+        /* --- STRUTTURA MACCHINA --- */
+        .machine-container {
+            width: 96vw;
+            max-width: 1100px;
+            background: #181715;
+            border: 4px solid #2d2924;
+            padding: 1.5vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5vw;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d2924;
+            padding-bottom: 0.8vw;
+            z-index: 10;
+        }
+
+        .mode-btn, .layout-toggle-btn {
+            background: #24201c;
+            color: #8c8275;
+            border: 2px solid #403830;
+            padding: 0.6vw 1.2vw;
+            font-family: inherit;
+            font-size: 1.2vw;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mode-btn.active {
+            color: #d4cebe;
+            border-color: #8c7661;
+            background: #332d27;
+        }
+
+        /* --- VIEWPORT SWIPE STILE IPHONE --- */
+        .slider-viewport {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider-track {
+            display: flex;
+            width: 200%;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .slide-page {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5vw;
+            padding: 1vw 0;
+        }
+
+        /* --- CONTROLLI NAVIGAZIONE PAGINA --- */
+        .page-navigation {
+            display: flex;
+            align-items: center;
+            gap: 1.5vw;
+            margin-top: 0.5vw;
+        }
+
+        .nav-arrow {
+            background: #24201c;
+            color: #b5a48b;
+            border: 1px solid #403830;
+            border-radius: 7px;
+            font-size: 1.5vw;
+            padding: 0.3vw 1vw;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .nav-arrow:hover {
+            background: #3a322b;
+            color: #fff;
+        }
+
+        .page-dots {
+            display: flex;
+            gap: 0.8vw;
+        }
+
+        .dot {
+            width: 0.8vw;
+            height: 0.8vw;
+            border-radius: 50%;
+            background: #3a322b;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: #ff9d00;
+            box-shadow: 0 0 8px #ff9d00;
+        }
+
+        /* --- SEZIONE ROTORI --- */
+        .rotors-container {
+            display: flex;
+            gap: 1.2vw;
+            justify-content: center;
+            align-items: center;
+            background: #100f0e;
+            padding: 1.2vw;
+            border: 2px solid #26221e;
+            width: 100%;
+        }
+
+        .rotor-group {
+            display: flex;
+            gap: 0.8vw;
+        }
+
+        .rotor-divider {
+            width: 2px;
+            background: #3a322b;
+            margin: 0 0.5vw;
+            height: 100%;
+        }
+
+        .rotor-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3vw;
+        }
+
+        .rotor-step-btn {
+            background: #24201c;
+            color: #8c8275;
+            border: 1px solid #403830;
+            width: 2.4vw;
+            height: 1.8vw;
+            font-size: 1vw;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rotor-step-btn:hover {
+            background: #38312b;
+            color: #fff;
+        }
+
+        .rotor-val {
+            font-size: 1.3vw;
+            font-weight: bold;
+            color: #e8a838;
+            background: #000;
+            padding: 0.3vw 0.6vw;
+            border: 1px solid #332b20;
+            min-width: 2.5vw;
+            text-align: center;
+        }
+
+        .rotor-selector {
+            font-size: 1.2vw;
+            font-weight: bold;
+            color: #b5a48b;
+            cursor: pointer;
+            padding: 0.2vw;
+        }
+
+        /* --- PANNELLO LAMPADINE --- */
+        .lampboard {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2vw;
+            width: 100%;
+            align-items: center;
+            padding: 1vw 0;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 1.2vw;
+            width: 100%;
+        }
+
+        .lamp-socket {
+            width: 6vw;
+            height: 6vw;
+            max-width: 75px;
+            max-height: 75px;
+            border-radius: 50%;
+            background: #0a0a09;
+            border: 3px solid #2b2621;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        .lamp-socket.active {
+            border-color: #8a7333;
+            background: #241d0e;
+        }
+
+        .lamp-letter {
+            font-size: 2.2vw;
+            font-weight: bold;
+            color: #3d3730;
+        }
+
+        .lamp-socket.active .lamp-letter {
+            color: #ffe89c;
+            text-shadow: 0 0 12px #ffc83b, 0 0 20px #ff9d00;
+        }
+
+        /* --- PANNELLO SCAMBI CON STANGHETTE | A | --- */
+        .plugboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1vw;
+            width: 100%;
+            align-items: center;
+            background: #100f0e;
+            border: 2px solid #26221e;
+            padding: 1.5vw;
+        }
+
+        .plug-pair {
+            display: flex;
+            align-items: center;
+            background: #050505;
+            border: 1px solid #2a241e;
+            padding: 0.3vw 0.6vw;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .plug-pair:hover {
+            border-color: #55483c;
+        }
+
+        .plug-pair.selected {
+            border-color: #ff9d00;
+            background: #1a140a;
+        }
+
+        .plug-bar {
+            font-size: 1.4vw;
+            font-weight: bold;
+            color: #4a4237;
+        }
+
+        .plug-letter {
+            font-size: 1.3vw;
+            font-weight: bold;
+            color: #a89f91;
+            padding: 0 0.4vw;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELO ROSSO COPRI-MACCHINA -->
+    <div id="cover-canvas">
+        <div class="cover-box">
+            <button class="cover-btn" onclick="selectLayout('QWERTY')">QWERTY</button>
+            <button class="cover-btn" onclick="selectLayout('QWERTZ')">QWERTZ</button>
+            <button class="cover-btn" onclick="selectLayout('AZERTY')">AZERTY</button>
+            <button class="cover-btn" onclick="selectLayout('CYRILLIC')">КИРИЛЛИЦА</button>
+        </div>
+    </div>
+
+    <!-- MACCHINA ENIGMA -->
+    <div class="machine-container">
+        
+        <div class="top-bar">
+            <button id="mode-btn" class="mode-btn active" onclick="toggleMode()">MODE: CIFRA</button>
+            <button id="layout-indicator" class="layout-toggle-btn" onclick="showCover()">QWERTY</button>
+        </div>
+
+        <!-- SLIDER VIEWPORT -->
+        <div class="slider-viewport">
+            <div class="slider-track" id="slider-track">
+                
+                <!-- SCHERMATA 1: LAMPADINE -->
+                <div class="slide-page">
+                    <div class="lampboard" id="lampboard"></div>
+                </div>
+
+                <!-- SCHERMATA 2: CONTROLLO (ROTORI + SCAMBI) -->
+                <div class="slide-page">
+                    <div class="rotors-container">
+                        <div class="rotor-group" id="personal-rotors"></div>
+                        <div class="rotor-divider"></div>
+                        <div class="rotor-group" id="context-rotors"></div>
+                    </div>
+
+                    <div class="plugboard-container" id="plugboard"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- CONTROLLI NAVIGAZIONE SCHERMATE -->
+        <div class="page-navigation">
+            <button class="nav-arrow" onclick="goToPage(0)">←</button>
+            <div class="page-dots">
+                <div class="dot active" id="dot-0" onclick="goToPage(0)"></div>
+                <div class="dot" id="dot-1" onclick="goToPage(1)"></div>
+            </div>
+            <button class="nav-arrow" onclick="goToPage(1)">→</button>
+        </div>
+
+    </div>
+
+    <script>
+        const LAYOUTS = {
+            QWERTY: [
+                ['Q','W','E','R','T','Y','U','I','O','P'],
+                ['A','S','D','F','G','H','J','K','L'],
+                ['Z','X','C','V','B','N','M']
+            ],
+            QWERTZ: [
+                ['Q','W','E','R','T','Z','U','I','O','P'],
+                ['A','S','D','F','G','H','J','K','L'],
+                ['Y','X','C','V','B','N','M']
+            ],
+            AZERTY: [
+                ['A','Z','E','R','T','Y','U','I','O','P'],
+                ['Q','S','D','F','G','H','J','K','L','M'],
+                ['W','X','C','V','B','N']
+            ],
+            CYRILLIC: [
+                ['Й','Ц','У','К','Е','Н','Г','Ш','Щ','З','Х'],
+                ['Ф','Ы','В','А','П','Р','О','Л','Д','Ж','Э'],
+                ['Я','Ч','С','М','И','Т','Ь','Б','Ю']
+            ]
+        };
+
+        const KEY_MAP_CYRILLIC = {
+            'q':'Й', 'w':'Ц', 'e':'У', 'r':'К', 't':'Е', 'y':'Н', 'u':'Г', 'i':'Ш', 'o':'Щ', 'p':'З',
+            'a':'Ф', 's':'Ы', 'd':'В', 'f':'А', 'g':'П', 'h':'Р', 'j':'О', 'k':'Л', 'l':'Д',
+            'z':'Я', 'x':'Ч', 'c':'С', 'v':'М', 'b':'И', 'n':'Т', 'm':'Ь'
+        };
+
+        const ROTOR_WIRINGS = [
+            [4, 10, 1, 19, 8, 14, 21, 2, 25, 0, 11, 18, 5, 22, 9, 16, 3, 20, 7, 24, 13, 6, 17, 12, 15, 23],
+            [21, 3, 15, 1, 19, 10, 14, 22, 8, 25, 0, 17, 12, 5, 18, 2, 20, 7, 24, 11, 4, 16, 9, 23, 6, 13],
+            [9, 1, 6, 18, 15, 24, 10, 2, 13, 22, 0, 17, 4, 21, 7, 19, 11, 3, 25, 12, 14, 8, 20, 5, 16, 23],
+            [15, 7, 2, 18, 12, 21, 0, 13, 9, 24, 4, 19, 1, 14, 22, 10, 25, 3, 16, 6, 20, 8, 17, 11, 5, 23],
+            [0, 23, 8, 14, 1, 21, 10, 17, 4, 19, 6, 12, 25, 2, 15, 7, 22, 9, 18, 5, 20, 11, 16, 3, 13, 24],
+            [11, 4, 19, 2, 21, 8, 16, 25, 1, 14, 7, 20, 10, 23, 5, 17, 0, 22, 12, 3, 18, 9, 15, 6, 24, 13],
+            [17, 2, 12, 22, 7, 19, 0, 24, 15, 4, 20, 9, 14, 1, 25, 8, 13, 5, 18, 10, 21, 3, 16, 6, 23, 11],
+            [2, 14, 6, 20, 11, 23, 8, 17, 1, 22, 12, 25, 4, 18, 9, 0, 15, 5, 21, 10, 16, 3, 19, 7, 24, 13],
+            [19, 8, 1, 15, 22, 5, 17, 11, 24, 4, 18, 0, 13, 21, 7, 25, 3, 12, 20, 9, 14, 2, 16, 6, 23, 10],
+            [8, 20, 3, 14, 22, 1, 17, 9, 25, 4, 12, 21, 0, 16, 6, 24, 11, 2, 18, 7, 15, 5, 19, 10, 23, 13]
+        ];
+
+        let currentLayout = 'QWERTY';
+        let isCipherMode = true;
+        let currentPage = 0;
+
+        let rotors = [
+            { type: 0, tic: 0 }, { type: 1, tic: 0 }, { type: 2, tic: 0 },
+            { type: 3, tic: 0 }, { type: 4, tic: 0 }, { type: 5, tic: 0 },
+            { type: 6, tic: 0 }, { type: 7, tic: 0 }, { type: 8, tic: 0 }
+        ];
+
+        let plugboardPairs = {};
+        let selectedPlugChar = null;
+
+        function goToPage(pageIndex) {
+            currentPage = pageIndex;
+            const track = document.getElementById('slider-track');
+            track.style.transform = `translateX(-${pageIndex * 50}%)`;
+
+            document.getElementById('dot-0').classList.toggle('active', pageIndex === 0);
+            document.getElementById('dot-1').classList.toggle('active', pageIndex === 1);
+        }
+
+        function initRotorsUI() {
+            const personalContainer = document.getElementById('personal-rotors');
+            const contextContainer = document.getElementById('context-rotors');
+            
+            personalContainer.innerHTML = '';
+            contextContainer.innerHTML = '';
+
+            rotors.forEach((r, idx) => {
+                const unit = document.createElement('div');
+                unit.className = 'rotor-unit';
+                unit.innerHTML = `
+                    <button class="rotor-step-btn" onclick="stepRotor(${idx}, 1)">▲</button>
+                    <div class="rotor-val" id="tic-${idx}">${r.tic + 1}</div>
+                    <button class="rotor-step-btn" onclick="stepRotor(${idx}, -1)">▼</button>
+                    <div class="rotor-selector" onclick="changeRotorType(${idx})">~${r.type}~</div>
+                `;
+
+                if (idx < 6) personalContainer.appendChild(unit);
+                else contextContainer.appendChild(unit);
+            });
+        }
+
+        function renderLampboard() {
+            const board = document.getElementById('lampboard');
+            board.innerHTML = '';
+
+            LAYOUTS[currentLayout].forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+
+                row.forEach(char => {
+                    const socket = document.createElement('div');
+                    socket.className = 'lamp-socket';
+                    socket.id = `lamp-${char}`;
+
+                    const letterSpan = document.createElement('span');
+                    letterSpan.className = 'lamp-letter';
+                    letterSpan.innerText = char;
+
+                    socket.appendChild(letterSpan);
+                    rowDiv.appendChild(socket);
+                });
+
+                board.appendChild(rowDiv);
+            });
+
+            renderPlugboard();
+        }
+
+        // Renderizza la tastiera degli scambi mantenendo l'ordine QWERTY e formato pulito | A |
+        function renderPlugboard() {
+            const board = document.getElementById('plugboard');
+            board.innerHTML = '';
+
+            LAYOUTS[currentLayout].forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+
+                row.forEach(char => {
+                    const pairDiv = document.createElement('div');
+                    pairDiv.className = 'plug-pair';
+                    if (selectedPlugChar === char) pairDiv.classList.add('selected');
+
+                    const target = plugboardPairs[char];
+                    const color = target ? getCharColor(char, target) : '#a89f91';
+
+                    pairDiv.innerHTML = `
+                        <span class="plug-bar" style="color:${color}">|</span>
+                        <span class="plug-letter" style="color:${color}">${char}</span>
+                        <span class="plug-bar" style="color:${color}">|</span>
+                    `;
+
+                    pairDiv.onclick = () => handlePlugClick(char);
+                    rowDiv.appendChild(pairDiv);
+                });
+
+                board.appendChild(rowDiv);
+            });
+        }
+
+        function getCharColor(c1, c2) {
+            let code = (c1.charCodeAt(0) + c2.charCodeAt(0)) * 23;
+            let hue = code % 360;
+            return `hsl(${hue}, 85%, 65%)`;
+        }
+
+        function handlePlugClick(char) {
+            if (plugboardPairs[char]) {
+                const other = plugboardPairs[char];
+                delete plugboardPairs[char];
+                delete plugboardPairs[other];
+                selectedPlugChar = null;
+                renderPlugboard();
+                return;
+            }
+
+            if (!selectedPlugChar) {
+                selectedPlugChar = char;
+            } else if (selectedPlugChar === char) {
+                selectedPlugChar = null;
+            } else {
+                if (plugboardPairs[selectedPlugChar]) delete plugboardPairs[plugboardPairs[selectedPlugChar]];
+
+                plugboardPairs[selectedPlugChar] = char;
+                plugboardPairs[char] = selectedPlugChar;
+                selectedPlugChar = null;
+            }
+            renderPlugboard();
+        }
+
+        function selectLayout(layoutKey) {
+            currentLayout = layoutKey;
+            plugboardPairs = {};
+            selectedPlugChar = null;
+            document.getElementById('layout-indicator').innerText = layoutKey;
+            renderLampboard();
+            document.getElementById('cover-canvas').style.display = 'none';
+        }
+
+        function showCover() {
+            document.getElementById('cover-canvas').style.display = 'flex';
+        }
+
+        function toggleMode() {
+            isCipherMode = !isCipherMode;
+            const btn = document.getElementById('mode-btn');
+            btn.innerText = isCipherMode ? "MODE: CIFRA" : "MODE: DECIFRA";
+        }
+
+        function changeRotorType(idx) {
+            rotors[idx].type = (rotors[idx].type + 1) % 10;
+            initRotorsUI();
+        }
+
+        function stepRotor(idx, dir) {
+            rotors[idx].tic = (rotors[idx].tic + dir + 26) % 26;
+            document.getElementById(`tic-${idx}`).innerText = rotors[idx].tic + 1;
+        }
+
+        function advanceOdometro() {
+            for (let i = 0; i < rotors.length; i++) {
+                rotors[i].tic = (rotors[i].tic + 1) % 26;
+                document.getElementById(`tic-${i}`).innerText = rotors[i].tic + 1;
+                if (rotors[i].tic !== 0) break;
+            }
+        }
+
+        function getAllChars() {
+            return LAYOUTS[currentLayout].flat();
+        }
+
+        function transformChar(char) {
+            let current = plugboardPairs[char] || char;
+
+            const allChars = getAllChars();
+            let index = allChars.indexOf(current);
+            if (index === -1) return null;
+
+            const numChars = allChars.length;
+
+            if (isCipherMode) {
+                for (let i = 0; i < rotors.length; i++) {
+                    const r = rotors[i];
+                    const shift = r.tic;
+                    const wiring = ROTOR_WIRINGS[r.type];
+                    
+                    let shiftedIn = (index + shift) % numChars;
+                    let mapped = wiring[shiftedIn % 26] % numChars;
+                    index = (mapped - shift + numChars) % numChars;
+                }
+            } else {
+                for (let i = rotors.length - 1; i >= 0; i--) {
+                    const r = rotors[i];
+                    const shift = r.tic;
+                    const wiring = ROTOR_WIRINGS[r.type];
+
+                    let shiftedIn = (index + shift) % numChars;
+                    
+                    let unmapped = 0;
+                    for (let w = 0; w < 26; w++) {
+                        if (wiring[w] % numChars === shiftedIn) {
+                            unmapped = w;
+                            break;
+                        }
+                    }
+                    index = (unmapped - shift + numChars) % numChars;
+                }
+            }
+
+            let outChar = allChars[index];
+            return plugboardPairs[outChar] || outChar;
+        }
+
+        let activeLampId = null;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+            if (document.getElementById('cover-canvas').style.display !== 'none') return;
+
+            let key = e.key.toUpperCase();
+
+            if (currentLayout === 'CYRILLIC') {
+                const mapped = KEY_MAP_CYRILLIC[e.key.toLowerCase()];
+                if (mapped) key = mapped;
+            }
+
+            const allChars = getAllChars();
+            if (allChars.includes(key)) {
+                const resultChar = transformChar(key);
+                if (resultChar) {
+                    const targetLamp = document.getElementById(`lamp-${resultChar}`);
+                    if (targetLamp) {
+                        targetLamp.classList.add('active');
+                        activeLampId = targetLamp.id;
+                    }
+                }
+                advanceOdometro();
+            }
+        });
+
+        window.addEventListener('keyup', () => {
+            if (activeLampId) {
+                const lamp = document.getElementById(activeLampId);
+                if (lamp) lamp.classList.remove('active');
+                activeLampId = null;
+            }
+        });
+
+        initRotorsUI();
+        renderLampboard();
+    </script>
+</body>
+</html>
