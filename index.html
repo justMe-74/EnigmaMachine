@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Macchina Cifrante Grezza</title>
     <style>
         * {
@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -20,7 +21,12 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             overflow: hidden;
+        }
+
+        html {
+            height: -webkit-fill-available;
         }
 
         /* --- TELO ROSSO COPRI-MACCHINA --- */
@@ -45,28 +51,30 @@
         .cover-box {
             background: #1a1816;
             border: 3px solid #3a322b;
-            padding: 4vw;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 2vw;
+            gap: 15px;
             align-items: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            width: 85%;
+            max-width: 400px;
         }
 
         .cover-btn {
             background: #2a2521;
             color: #b5a48b;
             border: 2px solid #55483c;
-            padding: 1.5vw 3vw;
+            padding: 12px 20px;
             font-family: inherit;
-            font-size: 1.8vw;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
             text-align: center;
         }
 
-        .cover-btn:hover {
+        .cover-btn:hover, .cover-btn:active {
             background: #3a332d;
             color: #e6dac3;
             border-color: #8c7661;
@@ -74,15 +82,17 @@
 
         /* --- STRUTTURA MACCHINA --- */
         .machine-container {
-            width: 96vw;
-            max-width: 1100px;
+            width: 98vw;
+            max-width: 1000px;
+            height: 96vh;
+            max-height: 850px;
             background: #181715;
-            border: 4px solid #2d2924;
-            padding: 1.5vw;
+            border: 3px solid #2d2924;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1.5vw;
+            justify-content: space-between;
             box-shadow: 0 0 50px rgba(0,0,0,0.9);
             position: relative;
             overflow: hidden;
@@ -94,7 +104,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #2d2924;
-            padding-bottom: 0.8vw;
+            padding-bottom: 8px;
             z-index: 10;
         }
 
@@ -102,9 +112,9 @@
             background: #24201c;
             color: #8c8275;
             border: 2px solid #403830;
-            padding: 0.6vw 1.2vw;
+            padding: 6px 12px;
             font-family: inherit;
-            font-size: 1.2vw;
+            font-size: 0.85rem;
             font-weight: bold;
             cursor: pointer;
         }
@@ -115,9 +125,20 @@
             background: #332d27;
         }
 
+        /* LOGO ENIGMA */
+        .logo-enigma {
+            height: 32px;
+            max-width: 120px;
+            object-fit: contain;
+            filter: invert(0.85) opacity(0.7) drop-shadow(0 0 2px rgba(0,0,0,0.8));
+        }
+
         /* --- VIEWPORT SWIPE STILE IPHONE --- */
         .slider-viewport {
             width: 100%;
+            flex: 1;
+            display: flex;
+            align-items: center;
             overflow: hidden;
             position: relative;
         }
@@ -125,51 +146,54 @@
         .slider-track {
             display: flex;
             width: 200%;
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            height: 100%;
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .slide-page {
             width: 50%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1.5vw;
-            padding: 1vw 0;
+            gap: 12px;
+            padding: 5px 0;
+            overflow-y: auto;
         }
 
         /* --- CONTROLLI NAVIGAZIONE PAGINA --- */
         .page-navigation {
             display: flex;
             align-items: center;
-            gap: 1.5vw;
-            margin-top: 0.5vw;
+            gap: 15px;
+            padding: 5px 0;
         }
 
         .nav-arrow {
             background: #24201c;
             color: #b5a48b;
             border: 1px solid #403830;
-            border-radius: 7px;
-            font-size: 1.5vw;
-            padding: 0.3vw 1vw;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            padding: 4px 16px;
             cursor: pointer;
             font-weight: bold;
         }
 
-        .nav-arrow:hover {
+        .nav-arrow:hover, .nav-arrow:active {
             background: #3a322b;
             color: #fff;
         }
 
         .page-dots {
             display: flex;
-            gap: 0.8vw;
+            gap: 8px;
         }
 
         .dot {
-            width: 0.8vw;
-            height: 0.8vw;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: #3a322b;
             cursor: pointer;
@@ -184,100 +208,107 @@
         /* --- SEZIONE ROTORI --- */
         .rotors-container {
             display: flex;
-            gap: 1.2vw;
+            gap: 8px;
             justify-content: center;
             align-items: center;
             background: #100f0e;
-            padding: 1.2vw;
+            padding: 10px;
             border: 2px solid #26221e;
             width: 100%;
+            flex-wrap: wrap;
         }
 
         .rotor-group {
             display: flex;
-            gap: 0.8vw;
+            gap: 5px;
+            justify-content: center;
         }
 
         .rotor-divider {
             width: 2px;
             background: #3a322b;
-            margin: 0 0.5vw;
-            height: 100%;
+            margin: 0 4px;
+            height: 40px;
         }
 
         .rotor-unit {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.3vw;
+            gap: 2px;
         }
 
         .rotor-step-btn {
             background: #24201c;
             color: #8c8275;
             border: 1px solid #403830;
-            width: 2.4vw;
-            height: 1.8vw;
-            font-size: 1vw;
+            width: 28px;
+            height: 22px;
+            font-size: 0.75rem;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .rotor-step-btn:hover {
+        .rotor-step-btn:hover, .rotor-step-btn:active {
             background: #38312b;
             color: #fff;
         }
 
         .rotor-val {
-            font-size: 1.3vw;
+            font-size: 1rem;
             font-weight: bold;
             color: #e8a838;
             background: #000;
-            padding: 0.3vw 0.6vw;
+            padding: 2px 4px;
             border: 1px solid #332b20;
-            min-width: 2.5vw;
+            min-width: 28px;
             text-align: center;
         }
 
         .rotor-selector {
-            font-size: 1.2vw;
+            font-size: 0.85rem;
             font-weight: bold;
             color: #b5a48b;
             cursor: pointer;
-            padding: 0.2vw;
+            padding: 2px;
         }
 
         /* --- PANNELLO LAMPADINE --- */
         .lampboard {
             display: flex;
             flex-direction: column;
-            gap: 1.2vw;
+            gap: 8px;
             width: 100%;
             align-items: center;
-            padding: 1vw 0;
+            justify-content: center;
+            flex: 1;
         }
 
         .keyboard-row {
             display: flex;
             justify-content: center;
-            gap: 1.2vw;
+            gap: 6px;
             width: 100%;
         }
 
         .lamp-socket {
-            width: 6vw;
-            height: 6vw;
-            max-width: 75px;
-            max-height: 75px;
+            width: 8.5vw;
+            height: 8.5vw;
+            max-width: 58px;
+            max-height: 58px;
+            min-width: 32px;
+            min-height: 32px;
             border-radius: 50%;
             background: #0a0a09;
-            border: 3px solid #2b2621;
+            border: 2px solid #2b2621;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: inset 0 0 10px #000;
+            box-shadow: inset 0 0 8px #000;
+            cursor: pointer;
+            touch-action: manipulation;
         }
 
         .lamp-socket.active {
@@ -286,26 +317,27 @@
         }
 
         .lamp-letter {
-            font-size: 2.2vw;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #3d3730;
+            pointer-events: none;
         }
 
         .lamp-socket.active .lamp-letter {
             color: #ffe89c;
-            text-shadow: 0 0 12px #ffc83b, 0 0 20px #ff9d00;
+            text-shadow: 0 0 10px #ffc83b, 0 0 18px #ff9d00;
         }
 
         /* --- PANNELLO SCAMBI CON STANGHETTE | A | --- */
         .plugboard-container {
             display: flex;
             flex-direction: column;
-            gap: 1vw;
+            gap: 6px;
             width: 100%;
             align-items: center;
             background: #100f0e;
             border: 2px solid #26221e;
-            padding: 1.5vw;
+            padding: 10px;
         }
 
         .plug-pair {
@@ -313,13 +345,9 @@
             align-items: center;
             background: #050505;
             border: 1px solid #2a241e;
-            padding: 0.3vw 0.6vw;
+            padding: 2px 4px;
             cursor: pointer;
             transition: border-color 0.2s, background 0.2s;
-        }
-
-        .plug-pair:hover {
-            border-color: #55483c;
         }
 
         .plug-pair.selected {
@@ -328,20 +356,73 @@
         }
 
         .plug-bar {
-            font-size: 1.4vw;
+            font-size: 0.9rem;
             font-weight: bold;
             color: #4a4237;
         }
 
         .plug-letter {
-            font-size: 1.3vw;
+            font-size: 0.85rem;
             font-weight: bold;
             color: #a89f91;
-            padding: 0 0.4vw;
+            padding: 0 2px;
+        }
+
+        /* INPUT INVISIBILE PER ATTIVARE TASTIERA MOBILE */
+        #mobile-keyboard-trigger {
+            position: absolute;
+            opacity: 0;
+            top: -100px;
+            left: -100px;
+            width: 1px;
+            height: 1px;
+        }
+
+        /* MEDIA QUERIES PER MOBILE */
+        @media (max-width: 600px) {
+            .mode-btn, .layout-toggle-btn {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+            .logo-enigma {
+                height: 24px;
+            }
+            .rotor-unit {
+                gap: 1px;
+            }
+            .rotor-step-btn {
+                width: 24px;
+                height: 20px;
+                font-size: 0.65rem;
+            }
+            .rotor-val {
+                font-size: 0.85rem;
+                min-width: 24px;
+                padding: 1px 2px;
+            }
+            .rotor-selector {
+                font-size: 0.75rem;
+            }
+            .lamp-letter {
+                font-size: 1rem;
+            }
+            .plug-letter {
+                font-size: 0.75rem;
+                padding: 0 1px;
+            }
+            .plug-bar {
+                font-size: 0.75rem;
+            }
+            .rotor-divider {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- INPUT NASCOSTO PER ATTIVARE TASTIERA SMARTPHONE -->
+    <input type="text" id="mobile-keyboard-trigger" autocomplete="off" capitalize="off" spellcheck="false">
 
     <!-- TELO ROSSO COPRI-MACCHINA -->
     <div id="cover-canvas">
@@ -358,6 +439,8 @@
         
         <div class="top-bar">
             <button id="mode-btn" class="mode-btn active" onclick="toggleMode()">MODE: CIFRA</button>
+            <!-- LOGO ENIGMA -->
+            <img src="immagine.jpg" alt="ENIGMA" class="logo-enigma">
             <button id="layout-indicator" class="layout-toggle-btn" onclick="showCover()">QWERTY</button>
         </div>
 
@@ -367,7 +450,7 @@
                 
                 <!-- SCHERMATA 1: LAMPADINE -->
                 <div class="slide-page">
-                    <div class="lampboard" id="lampboard"></div>
+                    <div class="lampboard" id="lampboard" onclick="focusMobileKeyboard()"></div>
                 </div>
 
                 <!-- SCHERMATA 2: CONTROLLO (ROTORI + SCAMBI) -->
@@ -384,7 +467,7 @@
             </div>
         </div>
 
-        <!-- CONTROLLI NAVIGAZIONE SCHERMATE -->
+        <!-- CONTROLLI NAVIGAZIONE SCHERMATE (SOLO FRECCE MINIMALI) -->
         <div class="page-navigation">
             <button class="nav-arrow" onclick="goToPage(0)">←</button>
             <div class="page-dots">
@@ -451,6 +534,7 @@
 
         let plugboardPairs = {};
         let selectedPlugChar = null;
+        let activeLampId = null;
 
         function goToPage(pageIndex) {
             currentPage = pageIndex;
@@ -501,6 +585,13 @@
                     letterSpan.innerText = char;
 
                     socket.appendChild(letterSpan);
+
+                    // Pressione diretta a schermo / touch
+                    socket.addEventListener('mousedown', (e) => { e.preventDefault(); handleKeyPress(char); });
+                    socket.addEventListener('mouseup', (e) => { e.preventDefault(); handleKeyRelease(); });
+                    socket.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(char); });
+                    socket.addEventListener('touchend', (e) => { e.preventDefault(); handleKeyRelease(); });
+
                     rowDiv.appendChild(socket);
                 });
 
@@ -510,7 +601,6 @@
             renderPlugboard();
         }
 
-        // Renderizza la tastiera degli scambi mantenendo l'ordine QWERTY e formato pulito | A |
         function renderPlugboard() {
             const board = document.getElementById('plugboard');
             board.innerHTML = '';
@@ -654,8 +744,51 @@
             return plugboardPairs[outChar] || outChar;
         }
 
-        let activeLampId = null;
+        function handleKeyPress(keyChar) {
+            if (activeLampId) handleKeyRelease();
 
+            const allChars = getAllChars();
+            if (allChars.includes(keyChar)) {
+                const resultChar = transformChar(keyChar);
+                if (resultChar) {
+                    const targetLamp = document.getElementById(`lamp-${resultChar}`);
+                    if (targetLamp) {
+                        targetLamp.classList.add('active');
+                        activeLampId = targetLamp.id;
+                    }
+                }
+                advanceOdometro();
+            }
+        }
+
+        function handleKeyRelease() {
+            if (activeLampId) {
+                const lamp = document.getElementById(activeLampId);
+                if (lamp) lamp.classList.remove('active');
+                activeLampId = null;
+            }
+        }
+
+        // TASTIERA SMARTPHONE
+        function focusMobileKeyboard() {
+            const input = document.getElementById('mobile-keyboard-trigger');
+            input.focus();
+        }
+
+        document.getElementById('mobile-keyboard-trigger').addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (val.length > 0) {
+                let char = val.slice(-1).toUpperCase();
+                if (currentLayout === 'CYRILLIC' && KEY_MAP_CYRILLIC[val.slice(-1).toLowerCase()]) {
+                    char = KEY_MAP_CYRILLIC[val.slice(-1).toLowerCase()];
+                }
+                handleKeyPress(char);
+                setTimeout(handleKeyRelease, 300);
+                e.target.value = '';
+            }
+        });
+
+        // TASTIERA FISICA PC
         window.addEventListener('keydown', (e) => {
             if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
             if (document.getElementById('cover-canvas').style.display !== 'none') return;
@@ -667,26 +800,11 @@
                 if (mapped) key = mapped;
             }
 
-            const allChars = getAllChars();
-            if (allChars.includes(key)) {
-                const resultChar = transformChar(key);
-                if (resultChar) {
-                    const targetLamp = document.getElementById(`lamp-${resultChar}`);
-                    if (targetLamp) {
-                        targetLamp.classList.add('active');
-                        activeLampId = targetLamp.id;
-                    }
-                }
-                advanceOdometro();
-            }
+            handleKeyPress(key);
         });
 
         window.addEventListener('keyup', () => {
-            if (activeLampId) {
-                const lamp = document.getElementById(activeLampId);
-                if (lamp) lamp.classList.remove('active');
-                activeLampId = null;
-            }
+            handleKeyRelease();
         });
 
         initRotorsUI();
