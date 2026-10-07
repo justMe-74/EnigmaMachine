@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Macchina Cifrante Grezza</title>
+    <title>Macchina Cifrante Enigma</title>
     <style>
         * {
             box-sizing: border-box;
@@ -93,7 +93,6 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 0 50px rgba(0,0,0,0.9);
             position: relative;
             overflow: hidden;
         }
@@ -112,9 +111,9 @@
             background: #24201c;
             color: #8c8275;
             border: 2px solid #403830;
-            padding: 6px 12px;
+            padding: 6px 10px;
             font-family: inherit;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
         }
@@ -125,15 +124,14 @@
             background: #332d27;
         }
 
-        /* LOGO ENIGMA */
         .logo-enigma {
-            height: 32px;
-            max-width: 120px;
+            height: 28px;
+            max-width: 110px;
             object-fit: contain;
             filter: invert(0.85) opacity(0.7) drop-shadow(0 0 2px rgba(0,0,0,0.8));
         }
 
-        /* --- VIEWPORT SWIPE STILE IPHONE --- */
+        /* --- VIEWPORT SWIPE --- */
         .slider-viewport {
             width: 100%;
             flex: 1;
@@ -156,13 +154,87 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
+            justify-content: flex-start;
+            gap: 10px;
             padding: 5px 0;
             overflow-y: auto;
         }
 
-        /* --- CONTROLLI NAVIGAZIONE PAGINA --- */
+        /* --- PANNELLO TESTO CIFRATO (SOSTITUISCE LAMPADINE) --- */
+        .text-panel {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .text-box-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .text-label {
+            font-size: 0.75rem;
+            color: #8c8275;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        textarea {
+            width: 100%;
+            flex: 1;
+            background: #0a0a09;
+            border: 1px solid #332d27;
+            color: #e8a838;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1rem;
+            padding: 10px;
+            resize: none;
+            outline: none;
+            border-radius: 4px;
+            user-select: text;
+        }
+
+        textarea:focus {
+            border-color: #8c7661;
+        }
+
+        .output-box {
+            background: #050505;
+            border: 1px solid #4a3e2c;
+            color: #ffe89c;
+            word-break: break-all;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: #24201c;
+            color: #b5a48b;
+            border: 1px solid #403830;
+            padding: 8px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .action-btn:active {
+            background: #38312b;
+            color: #fff;
+        }
+
+        /* --- CONTROLLI NAVIGAZIONE SCHERMATA --- */
         .page-navigation {
             display: flex;
             align-items: center;
@@ -181,7 +253,7 @@
             font-weight: bold;
         }
 
-        .nav-arrow:hover, .nav-arrow:active {
+        .nav-arrow:active {
             background: #3a322b;
             color: #fff;
         }
@@ -208,11 +280,11 @@
         /* --- SEZIONE ROTORI --- */
         .rotors-container {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             justify-content: center;
             align-items: center;
             background: #100f0e;
-            padding: 10px;
+            padding: 8px 4px;
             border: 2px solid #26221e;
             width: 100%;
             flex-wrap: wrap;
@@ -220,15 +292,8 @@
 
         .rotor-group {
             display: flex;
-            gap: 5px;
+            gap: 3px;
             justify-content: center;
-        }
-
-        .rotor-divider {
-            width: 2px;
-            background: #3a322b;
-            margin: 0 4px;
-            height: 40px;
         }
 
         .rotor-unit {
@@ -242,102 +307,56 @@
             background: #24201c;
             color: #8c8275;
             border: 1px solid #403830;
-            width: 28px;
+            width: 24px;
             height: 22px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .rotor-step-btn:hover, .rotor-step-btn:active {
+        .rotor-step-btn:active {
             background: #38312b;
             color: #fff;
         }
 
         .rotor-val {
-            font-size: 1rem;
+            font-size: 0.85rem;
             font-weight: bold;
             color: #e8a838;
             background: #000;
-            padding: 2px 4px;
+            padding: 1px 2px;
             border: 1px solid #332b20;
-            min-width: 28px;
+            min-width: 24px;
             text-align: center;
         }
 
         .rotor-selector {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #b5a48b;
             cursor: pointer;
             padding: 2px;
         }
 
-        /* --- PANNELLO LAMPADINE --- */
-        .lampboard {
+        /* --- PANNELLO SCAMBI CON STANGHETTE | A | --- */
+        .plugboard-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
             width: 100%;
             align-items: center;
-            justify-content: center;
-            flex: 1;
+            background: #100f0e;
+            border: 2px solid #26221e;
+            padding: 8px;
         }
 
         .keyboard-row {
             display: flex;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
             width: 100%;
-        }
-
-        .lamp-socket {
-            width: 8.5vw;
-            height: 8.5vw;
-            max-width: 58px;
-            max-height: 58px;
-            min-width: 32px;
-            min-height: 32px;
-            border-radius: 50%;
-            background: #0a0a09;
-            border: 2px solid #2b2621;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: inset 0 0 8px #000;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-
-        .lamp-socket.active {
-            border-color: #8a7333;
-            background: #241d0e;
-        }
-
-        .lamp-letter {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #3d3730;
-            pointer-events: none;
-        }
-
-        .lamp-socket.active .lamp-letter {
-            color: #ffe89c;
-            text-shadow: 0 0 10px #ffc83b, 0 0 18px #ff9d00;
-        }
-
-        /* --- PANNELLO SCAMBI CON STANGHETTE | A | --- */
-        .plugboard-container {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            width: 100%;
-            align-items: center;
-            background: #100f0e;
-            border: 2px solid #26221e;
-            padding: 10px;
         }
 
         .plug-pair {
@@ -345,9 +364,8 @@
             align-items: center;
             background: #050505;
             border: 1px solid #2a241e;
-            padding: 2px 4px;
+            padding: 1px 2px;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
         }
 
         .plug-pair.selected {
@@ -356,73 +374,30 @@
         }
 
         .plug-bar {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #4a4237;
         }
 
         .plug-letter {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #a89f91;
-            padding: 0 2px;
+            padding: 0 1px;
         }
 
-        /* INPUT INVISIBILE PER ATTIVARE TASTIERA MOBILE */
-        #mobile-keyboard-trigger {
-            position: absolute;
-            opacity: 0;
-            top: -100px;
-            left: -100px;
-            width: 1px;
-            height: 1px;
-        }
-
-        /* MEDIA QUERIES PER MOBILE */
         @media (max-width: 600px) {
             .mode-btn, .layout-toggle-btn {
-                font-size: 0.75rem;
-                padding: 4px 8px;
+                font-size: 0.7rem;
+                padding: 4px 6px;
             }
             .logo-enigma {
-                height: 24px;
-            }
-            .rotor-unit {
-                gap: 1px;
-            }
-            .rotor-step-btn {
-                width: 24px;
-                height: 20px;
-                font-size: 0.65rem;
-            }
-            .rotor-val {
-                font-size: 0.85rem;
-                min-width: 24px;
-                padding: 1px 2px;
-            }
-            .rotor-selector {
-                font-size: 0.75rem;
-            }
-            .lamp-letter {
-                font-size: 1rem;
-            }
-            .plug-letter {
-                font-size: 0.75rem;
-                padding: 0 1px;
-            }
-            .plug-bar {
-                font-size: 0.75rem;
-            }
-            .rotor-divider {
-                display: none;
+                height: 22px;
             }
         }
     </style>
 </head>
 <body>
-
-    <!-- INPUT NASCOSTO PER ATTIVARE TASTIERA SMARTPHONE -->
-    <input type="text" id="mobile-keyboard-trigger" autocomplete="off" capitalize="off" spellcheck="false">
 
     <!-- TELO ROSSO COPRI-MACCHINA -->
     <div id="cover-canvas">
@@ -439,7 +414,6 @@
         
         <div class="top-bar">
             <button id="mode-btn" class="mode-btn active" onclick="toggleMode()">MODE: CIFRA</button>
-            <!-- LOGO ENIGMA -->
             <img src="immagine.jpg" alt="ENIGMA" class="logo-enigma">
             <button id="layout-indicator" class="layout-toggle-btn" onclick="showCover()">QWERTY</button>
         </div>
@@ -448,16 +422,28 @@
         <div class="slider-viewport">
             <div class="slider-track" id="slider-track">
                 
-                <!-- SCHERMATA 1: LAMPADINE -->
+                <!-- SCHERMATA 1: TESTO INPUT E OUTPUT CIFRATO -->
                 <div class="slide-page">
-                    <div class="lampboard" id="lampboard" onclick="focusMobileKeyboard()"></div>
+                    <div class="text-panel">
+                        <div class="text-box-group">
+                            <span class="text-label">Testo in Ingresso:</span>
+                            <textarea id="input-text" placeholder="Scrivi qui il messaggio..." oninput="processFullText()"></textarea>
+                        </div>
+                        <div class="text-box-group">
+                            <span class="text-label">Risultato Cifrato / Decifrato:</span>
+                            <textarea id="output-text" class="output-box" readonly placeholder="Il risultato apparirà qui..."></textarea>
+                        </div>
+                        <div class="action-bar">
+                            <button class="action-btn" onclick="clearTexts()">CANCELLA</button>
+                            <button class="action-btn" onclick="copyOutput()">COPIA RISULTATO</button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- SCHERMATA 2: CONTROLLO (ROTORI + SCAMBI) -->
                 <div class="slide-page">
                     <div class="rotors-container">
                         <div class="rotor-group" id="personal-rotors"></div>
-                        <div class="rotor-divider"></div>
                         <div class="rotor-group" id="context-rotors"></div>
                     </div>
 
@@ -467,7 +453,7 @@
             </div>
         </div>
 
-        <!-- CONTROLLI NAVIGAZIONE SCHERMATE (SOLO FRECCE MINIMALI) -->
+        <!-- CONTROLLI NAVIGAZIONE SCHERMATE -->
         <div class="page-navigation">
             <button class="nav-arrow" onclick="goToPage(0)">←</button>
             <div class="page-dots">
@@ -503,12 +489,6 @@
             ]
         };
 
-        const KEY_MAP_CYRILLIC = {
-            'q':'Й', 'w':'Ц', 'e':'У', 'r':'К', 't':'Е', 'y':'Н', 'u':'Г', 'i':'Ш', 'o':'Щ', 'p':'З',
-            'a':'Ф', 's':'Ы', 'd':'В', 'f':'А', 'g':'П', 'h':'Р', 'j':'О', 'k':'Л', 'l':'Д',
-            'z':'Я', 'x':'Ч', 'c':'С', 'v':'М', 'b':'И', 'n':'Т', 'm':'Ь'
-        };
-
         const ROTOR_WIRINGS = [
             [4, 10, 1, 19, 8, 14, 21, 2, 25, 0, 11, 18, 5, 22, 9, 16, 3, 20, 7, 24, 13, 6, 17, 12, 15, 23],
             [21, 3, 15, 1, 19, 10, 14, 22, 8, 25, 0, 17, 12, 5, 18, 2, 20, 7, 24, 11, 4, 16, 9, 23, 6, 13],
@@ -524,7 +504,6 @@
 
         let currentLayout = 'QWERTY';
         let isCipherMode = true;
-        let currentPage = 0;
 
         let rotors = [
             { type: 0, tic: 0 }, { type: 1, tic: 0 }, { type: 2, tic: 0 },
@@ -534,10 +513,8 @@
 
         let plugboardPairs = {};
         let selectedPlugChar = null;
-        let activeLampId = null;
 
         function goToPage(pageIndex) {
-            currentPage = pageIndex;
             const track = document.getElementById('slider-track');
             track.style.transform = `translateX(-${pageIndex * 50}%)`;
 
@@ -565,40 +542,6 @@
                 if (idx < 6) personalContainer.appendChild(unit);
                 else contextContainer.appendChild(unit);
             });
-        }
-
-        function renderLampboard() {
-            const board = document.getElementById('lampboard');
-            board.innerHTML = '';
-
-            LAYOUTS[currentLayout].forEach(row => {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'keyboard-row';
-
-                row.forEach(char => {
-                    const socket = document.createElement('div');
-                    socket.className = 'lamp-socket';
-                    socket.id = `lamp-${char}`;
-
-                    const letterSpan = document.createElement('span');
-                    letterSpan.className = 'lamp-letter';
-                    letterSpan.innerText = char;
-
-                    socket.appendChild(letterSpan);
-
-                    // Pressione diretta a schermo / touch
-                    socket.addEventListener('mousedown', (e) => { e.preventDefault(); handleKeyPress(char); });
-                    socket.addEventListener('mouseup', (e) => { e.preventDefault(); handleKeyRelease(); });
-                    socket.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyPress(char); });
-                    socket.addEventListener('touchend', (e) => { e.preventDefault(); handleKeyRelease(); });
-
-                    rowDiv.appendChild(socket);
-                });
-
-                board.appendChild(rowDiv);
-            });
-
-            renderPlugboard();
         }
 
         function renderPlugboard() {
@@ -643,11 +586,7 @@
                 delete plugboardPairs[char];
                 delete plugboardPairs[other];
                 selectedPlugChar = null;
-                renderPlugboard();
-                return;
-            }
-
-            if (!selectedPlugChar) {
+            } else if (!selectedPlugChar) {
                 selectedPlugChar = char;
             } else if (selectedPlugChar === char) {
                 selectedPlugChar = null;
@@ -659,6 +598,7 @@
                 selectedPlugChar = null;
             }
             renderPlugboard();
+            processFullText();
         }
 
         function selectLayout(layoutKey) {
@@ -666,8 +606,9 @@
             plugboardPairs = {};
             selectedPlugChar = null;
             document.getElementById('layout-indicator').innerText = layoutKey;
-            renderLampboard();
+            renderPlugboard();
             document.getElementById('cover-canvas').style.display = 'none';
+            processFullText();
         }
 
         function showCover() {
@@ -678,137 +619,101 @@
             isCipherMode = !isCipherMode;
             const btn = document.getElementById('mode-btn');
             btn.innerText = isCipherMode ? "MODE: CIFRA" : "MODE: DECIFRA";
+            processFullText();
         }
 
         function changeRotorType(idx) {
             rotors[idx].type = (rotors[idx].type + 1) % 10;
             initRotorsUI();
+            processFullText();
         }
 
         function stepRotor(idx, dir) {
             rotors[idx].tic = (rotors[idx].tic + dir + 26) % 26;
             document.getElementById(`tic-${idx}`).innerText = rotors[idx].tic + 1;
-        }
-
-        function advanceOdometro() {
-            for (let i = 0; i < rotors.length; i++) {
-                rotors[i].tic = (rotors[i].tic + 1) % 26;
-                document.getElementById(`tic-${i}`).innerText = rotors[i].tic + 1;
-                if (rotors[i].tic !== 0) break;
-            }
+            processFullText();
         }
 
         function getAllChars() {
             return LAYOUTS[currentLayout].flat();
         }
 
-        function transformChar(char) {
-            let current = plugboardPairs[char] || char;
-
+        /* --- ELABORAZIONE TESTO COMPLETO --- */
+        function processFullText() {
+            const rawText = document.getElementById('input-text').value.toUpperCase();
             const allChars = getAllChars();
-            let index = allChars.indexOf(current);
-            if (index === -1) return null;
+            
+            // Copia dello stato iniziale dei rotori per simulare la sequenza
+            let tempRotors = rotors.map(r => ({ ...r }));
+            let result = "";
 
-            const numChars = allChars.length;
-
-            if (isCipherMode) {
-                for (let i = 0; i < rotors.length; i++) {
-                    const r = rotors[i];
-                    const shift = r.tic;
-                    const wiring = ROTOR_WIRINGS[r.type];
-                    
-                    let shiftedIn = (index + shift) % numChars;
-                    let mapped = wiring[shiftedIn % 26] % numChars;
-                    index = (mapped - shift + numChars) % numChars;
+            for (let char of rawText) {
+                if (!allChars.includes(char)) {
+                    result += char; // Mantiene spazi o punteggiatura non mappati
+                    continue;
                 }
-            } else {
-                for (let i = rotors.length - 1; i >= 0; i--) {
-                    const r = rotors[i];
-                    const shift = r.tic;
-                    const wiring = ROTOR_WIRINGS[r.type];
 
-                    let shiftedIn = (index + shift) % numChars;
-                    
-                    let unmapped = 0;
-                    for (let w = 0; w < 26; w++) {
-                        if (wiring[w] % numChars === shiftedIn) {
-                            unmapped = w;
-                            break;
+                // Applicazione Plugboard
+                let current = plugboardPairs[char] || char;
+                let index = allChars.indexOf(current);
+
+                const numChars = allChars.length;
+
+                if (isCipherMode) {
+                    for (let i = 0; i < tempRotors.length; i++) {
+                        const r = tempRotors[i];
+                        const shift = r.tic;
+                        const wiring = ROTOR_WIRINGS[r.type];
+                        
+                        let shiftedIn = (index + shift) % numChars;
+                        let mapped = wiring[shiftedIn % 26] % numChars;
+                        index = (mapped - shift + numChars) % numChars;
+                    }
+                } else {
+                    for (let i = tempRotors.length - 1; i >= 0; i--) {
+                        const r = tempRotors[i];
+                        const shift = r.tic;
+                        const wiring = ROTOR_WIRINGS[r.type];
+
+                        let shiftedIn = (index + shift) % numChars;
+                        let unmapped = 0;
+                        for (let w = 0; w < 26; w++) {
+                            if (wiring[w] % numChars === shiftedIn) {
+                                unmapped = w;
+                                break;
+                            }
                         }
-                    }
-                    index = (unmapped - shift + numChars) % numChars;
-                }
-            }
-
-            let outChar = allChars[index];
-            return plugboardPairs[outChar] || outChar;
-        }
-
-        function handleKeyPress(keyChar) {
-            if (activeLampId) handleKeyRelease();
-
-            const allChars = getAllChars();
-            if (allChars.includes(keyChar)) {
-                const resultChar = transformChar(keyChar);
-                if (resultChar) {
-                    const targetLamp = document.getElementById(`lamp-${resultChar}`);
-                    if (targetLamp) {
-                        targetLamp.classList.add('active');
-                        activeLampId = targetLamp.id;
+                        index = (unmapped - shift + numChars) % numChars;
                     }
                 }
-                advanceOdometro();
-            }
-        }
 
-        function handleKeyRelease() {
-            if (activeLampId) {
-                const lamp = document.getElementById(activeLampId);
-                if (lamp) lamp.classList.remove('active');
-                activeLampId = null;
-            }
-        }
+                let outChar = allChars[index];
+                result += (plugboardPairs[outChar] || outChar);
 
-        // TASTIERA SMARTPHONE
-        function focusMobileKeyboard() {
-            const input = document.getElementById('mobile-keyboard-trigger');
-            input.focus();
-        }
-
-        document.getElementById('mobile-keyboard-trigger').addEventListener('input', (e) => {
-            const val = e.target.value;
-            if (val.length > 0) {
-                let char = val.slice(-1).toUpperCase();
-                if (currentLayout === 'CYRILLIC' && KEY_MAP_CYRILLIC[val.slice(-1).toLowerCase()]) {
-                    char = KEY_MAP_CYRILLIC[val.slice(-1).toLowerCase()];
+                // Avanzamento odometro
+                for (let i = 0; i < tempRotors.length; i++) {
+                    tempRotors[i].tic = (tempRotors[i].tic + 1) % 26;
+                    if (tempRotors[i].tic !== 0) break;
                 }
-                handleKeyPress(char);
-                setTimeout(handleKeyRelease, 300);
-                e.target.value = '';
-            }
-        });
-
-        // TASTIERA FISICA PC
-        window.addEventListener('keydown', (e) => {
-            if (e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
-            if (document.getElementById('cover-canvas').style.display !== 'none') return;
-
-            let key = e.key.toUpperCase();
-
-            if (currentLayout === 'CYRILLIC') {
-                const mapped = KEY_MAP_CYRILLIC[e.key.toLowerCase()];
-                if (mapped) key = mapped;
             }
 
-            handleKeyPress(key);
-        });
+            document.getElementById('output-text').value = result;
+        }
 
-        window.addEventListener('keyup', () => {
-            handleKeyRelease();
-        });
+        function clearTexts() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output-text').value = '';
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('output-text');
+            if (output.value) {
+                navigator.clipboard.writeText(output.value);
+            }
+        }
 
         initRotorsUI();
-        renderLampboard();
+        renderPlugboard();
     </script>
 </body>
 </html>
